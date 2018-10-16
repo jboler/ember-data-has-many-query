@@ -1,9 +1,9 @@
-import Ember from 'ember';
-import DS from 'ember-data';
-import {stickyPropertyName} from './property-names';
+import { computed } from "@ember/object";
+import DS from "ember-data";
+import { stickyPropertyName } from "./property-names";
 
-var recordHasId = function (record) {
-  return record && record.get('id');
+var recordHasId = function(record) {
+  return record && record.get("id");
 };
 
 /**
@@ -17,24 +17,24 @@ var recordHasId = function (record) {
  *
  * @returns {Ember.computed} relationship
  */
-var belongsToSticky = function () {
-  var computed = DS.belongsTo(...arguments);
-  var meta = computed.meta();
+var belongsToSticky = function() {
+  var cp = DS.belongsTo(...arguments);
+  var meta = cp.meta();
   meta.sticky = true;
-  return Ember.computed({
-    get: function (key) {
-      var value = computed._getter.call(this, ...arguments);
+  return computed({
+    get: function(key) {
+      var value = cp._getter.call(this, ...arguments);
       if (recordHasId(value)) {
         return value;
       }
       return this.get(stickyPropertyName(key)) || value;
     },
-    set: function (key) {
+    set: function(key) {
       this.set(stickyPropertyName(key), undefined);
-      return computed._setter.call(this, ...arguments);
+      return cp._setter.call(this, ...arguments);
     }
   }).meta(meta);
 };
 
-export {recordHasId};
+export { recordHasId };
 export default belongsToSticky;
