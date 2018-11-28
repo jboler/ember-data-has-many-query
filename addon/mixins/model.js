@@ -92,7 +92,7 @@ export default Mixin.create({
     const reference = isHasMany ? this.hasMany(propertyName) : this.belongsTo(propertyName);
 
     return new Promise(resolve => {
-      // run.next, so that aborted promise gets rejected before starting another
+      // Use run.next, so that aborted promise gets rejected before starting another
       run.next(this, () => {
         const isLoaded = reference.value() !== null;
         if (isLoaded || forceReload) {

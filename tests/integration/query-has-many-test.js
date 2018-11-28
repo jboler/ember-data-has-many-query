@@ -8,7 +8,6 @@ import HasManyQuery from 'ember-data-has-many-query';
 const { RESTAdapter, Model, belongsTo, hasMany } = DS;
 
 let env;
-let store; // eslint-disable-line
 
 const Post = Model.extend(HasManyQuery.ModelMixin, {
   comments: hasMany('comment', { async: true })
@@ -23,8 +22,6 @@ function initializeStore(adapter) {
     adapter: adapter
   });
 
-  store = env.store;
-
   env.registry.register('model:post', Post);
   env.registry.register('model:comment', Comment);
 }
@@ -36,7 +33,6 @@ module('Integration - query-has-many', {
   },
 
   afterEach() {
-    store = null;
     env = null;
   }
 });
