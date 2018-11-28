@@ -1,21 +1,13 @@
-var queryParamPropertyName = function (key) {
-  return '__' + key + 'QueryParams';
-};
+const queryParamPropertyName = key => `__${key}QueryParams`;
+const queryIdPropertyName = key => `__${key}QueryId`;
+const lastWasErrorPropertyName = key => `__${key}LastWasError`;
+const ajaxOptionsPropertyName = key => `__${key}AjaxOptions`;
+const stickyPropertyName = key => `__${key}BelongsToSticky`;
 
-var queryIdPropertyName = function (key) {
-  return '__' + key + 'QueryId';
+export {
+  queryParamPropertyName,
+  queryIdPropertyName,
+  lastWasErrorPropertyName,
+  ajaxOptionsPropertyName,
+  stickyPropertyName
 };
-
-var lastWasErrorPropertyName = function (key) {
-  return '__' + key + 'LastWasError';
-};
-
-var ajaxOptionsPropertyName = function (key) {
-  return '__' + key + 'AjaxOptions';
-};
-
-var stickyPropertyName = function (key) {
-  return '__' + key + 'BelongsToSticky';
-};
-
-export {queryParamPropertyName, queryIdPropertyName, lastWasErrorPropertyName, ajaxOptionsPropertyName, stickyPropertyName};

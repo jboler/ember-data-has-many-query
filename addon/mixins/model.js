@@ -9,16 +9,17 @@ import {
   ajaxOptionsPropertyName,
   stickyPropertyName
 } from '../property-names';
-import {recordHasId} from '../belongs-to-sticky';
+import { recordHasId } from '../belongs-to-sticky';
 
-var queryId = 0;
+let queryId = 0;
 
 /**
  * Mixin for DS.Model extensions.
  */
+
 export default Mixin.create({
-  init() {
-    this._super(...arguments);
+  init(...args) {
+    this._super(...args);
 
     // Set sticky properties on init
     this.eachRelationship(key => {
@@ -43,42 +44,37 @@ export default Mixin.create({
    * @param {Object} params Query parameters
    * @returns {Ember.RSVP.Promise}
    */
-  query: function (propertyName, params) {
-    var self = this;
 
-    //abort the last query request for this property
-    var _ajaxOptionsPropertyName = ajaxOptionsPropertyName(propertyName);
-    var lastAjaxOptions = this.get(_ajaxOptionsPropertyName);
+  query(propertyName, params) {
+    // Abort the last query request for this property
+    const _ajaxOptionsPropertyName = ajaxOptionsPropertyName(propertyName);
+    const lastAjaxOptions = this.get(_ajaxOptionsPropertyName);
     if (lastAjaxOptions && lastAjaxOptions.jqXHR) {
       lastAjaxOptions.jqXHR.abort();
     }
 
-    //set the query params as a property on this record
-    var _queryParamPropertyName = queryParamPropertyName(propertyName);
-    var _queryIdPropertyName = queryIdPropertyName(propertyName);
-    var currentQueryId = queryId++;
+    // Set the query params as a property on this record
+    const _queryParamPropertyName = queryParamPropertyName(propertyName);
+    const _queryIdPropertyName = queryIdPropertyName(propertyName);
+    const currentQueryId = queryId++;
 
     const oldParams = this.get(_queryParamPropertyName, params)
 
     this.set(_queryParamPropertyName, params);
     this.set(_queryIdPropertyName, currentQueryId);
 
-    //get the relationship value, reloading if necessary
-    var value = this.reloadRelationship(propertyName, JSON.stringify(params) === JSON.stringify(oldParams));
+    // Get the relationship value, reloading if necessary
+    const value = this.reloadRelationship(propertyName, JSON.stringify(params) === JSON.stringify(oldParams));
 
-    //return the promise, clearing the ajax options property
+    // Return the promise, clearing the ajax options property
     return value.catch(function (error) {
-      if (error instanceof DS.AbortError) {
-        //ignore aborted requests
-        return;
-      }
+      // Ignore aborted requests
+      if (error instanceof DS.AbortError) return;
       throw error;
-    }).finally(function () {
-      if (self.get(_queryIdPropertyName) !== currentQueryId) {
-        //don't clear parameters if they've been set by another request
-        return;
-      }
-      self.set(_ajaxOptionsPropertyName, undefined);
+    }).finally(() => {
+      // Don't clear parameters if they've been set by another request
+      if (this.get(_queryIdPropertyName) !== currentQueryId) return;
+      this.set(_ajaxOptionsPropertyName, undefined);
     });
   },
 
@@ -88,30 +84,30 @@ export default Mixin.create({
    * @param propertyName Relationship property name
    * @returns {Ember.RSVP.Promise}
    */
-  reloadRelationship: function (propertyName, forceReload) {
-    //find out what kind of relationship this is
-    var relationship = this.relationshipFor(propertyName);
-    var isHasMany = relationship && relationship.kind === 'hasMany';
 
-    var self = this;
-    var reference = isHasMany ? this.hasMany(propertyName) : this.belongsTo(propertyName);
-    return new Promise(function (resolve) {
-      //run.next, so that aborted promise gets rejected before starting another
-      run.next(this, function () {
-        var isLoaded = reference.value() !== null;
+  reloadRelationship(propertyName, forceReload) {
+    // Find out what kind of relationship this is
+    const relationship = this.relationshipFor(propertyName);
+    const isHasMany = relationship && relationship.kind === 'hasMany';
+    const reference = isHasMany ? this.hasMany(propertyName) : this.belongsTo(propertyName);
+
+    return new Promise(resolve => {
+      // run.next, so that aborted promise gets rejected before starting another
+      run.next(this, () => {
+        const isLoaded = reference.value() !== null;
         if (isLoaded || forceReload) {
           resolve(reference.reload());
         } else {
-          //isLoaded is false when the last query resulted in an error, so if this load
-          //results in an error again, reload the reference to query the server again
-          var promise = reference.load().catch(function (error) {
-            var _lastWasErrorPropertyName = lastWasErrorPropertyName(propertyName);
-            if (self.get(_lastWasErrorPropertyName)) {
-              //last access to this property resulted in an error, so reload
+          // isLoaded is false when the last query resulted in an error, so if this load
+          // results in an error again, reload the reference to query the server again
+          const promise = reference.load().catch(function (error) {
+            const _lastWasErrorPropertyName = lastWasErrorPropertyName(propertyName);
+            if (this.get(_lastWasErrorPropertyName)) {
+              // Last access to this property resulted in an error, so reload
               return reference.reload();
             }
-            //mark this result as an error for next time the property is queried
-            self.set(_lastWasErrorPropertyName, true);
+            // Mark this result as an error for next time the property is queried
+            this.set(_lastWasErrorPropertyName, true);
             throw error;
           });
           resolve(promise);
@@ -120,28 +116,24 @@ export default Mixin.create({
     });
   },
 
-  notifyBelongsToChanged: function (key) {
-    //called when a belongsTo property changes
+  // Called when a belongsTo property changes
+  notifyBelongsToChanged(key) {
     this._super(...arguments);
     this._setStickyPropertyForKey(key);
   },
 
   _setStickyPropertyForKey(key) {
-    //check if the belongsTo relationship has been marked as sticky
-    var meta = this.constructor.metaForProperty(key);
-    if (!meta.sticky) {
-      return;
-    }
+    // Check if the belongsTo relationship has been marked as sticky
+    const meta = this.constructor.metaForProperty(key);
+    if (!meta.sticky) return;
 
-    //check if the value is loaded
-    var reference = this.belongsTo(key);
-    var value = reference && reference.value();
-    if (!recordHasId(value) || value.get('isEmpty')) {
-      return;
-    }
+    // Check if the value is loaded
+    const reference = this.belongsTo(key);
+    const value = reference && reference.value();
+    if (!recordHasId(value) || value.get('isEmpty')) return;
 
-    //if a belongsTo relationship attribute has changed, and the new record has an id,
-    //store the record in a property so that the belongsToSticky can return if it required
+    // If a belongsTo relationship attribute has changed, and the new record has an id,
+    // store the record in a property so that the belongsToSticky can return if it required
     this.set(stickyPropertyName(key), value);
   }
 });

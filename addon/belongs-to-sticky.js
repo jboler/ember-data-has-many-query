@@ -1,10 +1,8 @@
-import { computed } from "@ember/object";
-import DS from "ember-data";
-import { stickyPropertyName } from "./property-names";
+import DS from 'ember-data';
+import { computed } from '@ember/object';
+import { stickyPropertyName } from './property-names';
 
-var recordHasId = function(record) {
-  return record && record.get("id");
-};
+const recordHasId = record => record && record.get('id');
 
 /**
  * Create an extension to the `DS.belongsTo` computed property that returns a cached
@@ -17,21 +15,23 @@ var recordHasId = function(record) {
  *
  * @returns {Ember.computed} relationship
  */
-var belongsToSticky = function() {
-  var cp = DS.belongsTo(...arguments);
-  var meta = cp.meta();
+
+const belongsToSticky = (...args) => {
+  const computedProp = DS.belongsTo(...args);
+  const meta = computedProp.meta();
   meta.sticky = true;
+
   return computed({
-    get: function(key) {
-      var value = cp._getter.call(this, ...arguments);
+    get(key) {
+      const value = computedProp._getter.call(this, ...arguments);
       if (recordHasId(value)) {
         return value;
       }
       return this.get(stickyPropertyName(key)) || value;
     },
-    set: function(key) {
+    set(key) {
       this.set(stickyPropertyName(key), undefined);
-      return cp._setter.call(this, ...arguments);
+      return computedProp._setter.call(this, ...arguments);
     }
   }).meta(meta);
 };
