@@ -57,10 +57,10 @@ If you want to keep the associated belongs-to record after a new query, you can 
 attribute using `belongsToSticky`:
 
 ```javascript
-import HasManyQuery from 'ember-data-has-many-query';
+import { ModelMixin, belongsToSticky } from 'ember-data-has-many-query';
 
-export default DS.Model.extend(HasManyQuery.ModelMixin, {
-  post: HasManyQuery.belongsToSticky('post'),
+export default DS.Model.extend(ModelMixin, {
+  post: belongsToSticky('post'),
 });
 ```
 

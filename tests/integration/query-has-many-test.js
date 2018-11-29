@@ -3,17 +3,17 @@ import $ from 'jquery';
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 import { setupStore } from '../helpers/store';
-import HasManyQuery from 'ember-data-has-many-query';
+import { RESTAdapterMixin, ModelMixin, belongsToSticky } from 'ember-data-has-many-query';
 
 const { RESTAdapter, Model, belongsTo, hasMany } = DS;
 
 let env;
 
-const Post = Model.extend(HasManyQuery.ModelMixin, {
+const Post = Model.extend(ModelMixin, {
   comments: hasMany('comment', { async: true })
 });
 
-const Comment = Model.extend(HasManyQuery.ModelMixin, {
+const Comment = Model.extend(ModelMixin, {
   post: belongsTo('post', { async: true })
 });
 
@@ -28,7 +28,7 @@ function initializeStore(adapter) {
 
 module('Integration - query-has-many', {
   beforeEach() {
-    const adapter = RESTAdapter.extend(HasManyQuery.RESTAdapterMixin, {});
+    const adapter = RESTAdapter.extend(RESTAdapterMixin, {});
     initializeStore(adapter);
   },
 
@@ -65,7 +65,7 @@ test('Querying has-many relationship generates correct URL parameters', async fu
 
 test('Querying has-many relationship multiple times does not clear belongs-to-sticky association', async function(assert) {
   Comment.reopen({
-    post: HasManyQuery.belongsToSticky('post', { async: true })
+    post: belongsToSticky('post', { async: true })
   });
 
   env.adapter.findRecord = function() {
