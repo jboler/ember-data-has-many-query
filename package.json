@@ -1,9 +1,8 @@
 {
   "name": "ember-data-has-many-query",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "Ember data addon for querying async has-many relationships using query parameters",
   "directories": {
-    "doc": "doc",
     "test": "tests"
   },
   "scripts": {
@@ -16,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kohactive/ember-data-has-many-query"
+    "url": "https://github.com/jboler/ember-data-has-many-query"
   },
   "engines": {
     "node": "6.* || 8.* || >= 10.*"

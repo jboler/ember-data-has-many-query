@@ -62,7 +62,7 @@ export default Mixin.create({
     this.set(_queryParamPropertyName, params);
     this.set(_queryIdPropertyName, currentQueryId);
 
-    // Get the relationship value, reloading if necessary
+    // Get the relationship value, reloading if the params have changed
     const value = this.reloadRelationship(propertyName, JSON.stringify(params) !== JSON.stringify(oldParams));
 
     // Return the promise, clearing the ajax options property

@@ -75,19 +75,17 @@ test('Querying has-many relationship multiple times does not clear belongs-to-st
   };
 
   env.adapter.ajax = function(url, method, options) {
-    const queryString = $.param(options.data);
-    const page = queryString.match(/^.*(\d+)$/)[1];
+    const page = options.data.page;
     return resolve({
       comments: [{ id: page * 2 }, { id: page * 2 + 1 }]
     });
   };
 
   const post = await env.store.findRecord('post', 5);
-  const comments1 = await post.query('comments', { page: 1 });
-  const comments1Copy = comments1.slice(0);
-  const comments2 = await post.query('comments', { page: 2 });
+  const comments1 = (await post.query('comments', { page: 1 })).toArray();
+  const comments2 = (await post.query('comments', { page: 2 })).toArray();
 
-  comments1Copy.forEach(function(comment) {
+  comments1.forEach(function(comment) {
     assert.equal(comment.get('post.id'), 5, 'belongs-to association sticky after multiple has-many queries');
   });
 

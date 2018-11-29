@@ -1,5 +1,6 @@
 # ember-data-has-many-query
-[![Build Status](https://travis-ci.org/mdehoog/ember-data-has-many-query.svg?branch=master)](https://travis-ci.org/mdehoog/ember-data-has-many-query) [![Ember Observer Score](http://emberobserver.com/badges/ember-data-has-many-query.svg)](http://emberobserver.com/addons/ember-data-has-many-query)
+
+Originally created by: https://github.com/mdehoog/ember-data-has-many-query
 
 [Ember Data](https://github.com/emberjs/data)'s `DS.Store` supports querying top-level records using the
 [`query`](http://emberjs.com/api/data/classes/DS.Store.html#method_query) function. This provides support
@@ -11,6 +12,10 @@ supported with has-many/belongs-to relationships.
 This addon provides a way to query has-many and belongs-to relationships. Currently the `DS.RESTAdapter` and the
 `DS.JSONAPIAdapter` are supported.
 
+## Versioning
+
+This addon is targeted at Ember & Ember Data v3.4 LTS
+
 ## Installation
 
 `ember install ember-data-has-many-query`
@@ -20,18 +25,18 @@ This addon provides a way to query has-many and belongs-to relationships. Curren
 Add the `RESTAdapterMixin` to your `DS.RESTAdapter` (or `DS.JSONAPIAdapter`) extension:
 
 ```javascript
-import HasManyQuery from 'ember-data-has-many-query';
+import { RESTAdapterMixin } from 'ember-data-has-many-query';
 
-export default DS.RESTAdapter.extend(HasManyQuery.RESTAdapterMixin, {
+export default DS.RESTAdapter.extend(RESTAdapterMixin, {
 });
 ```
 
 Add the `ModelMixin` to any `DS.Model` extensions:
 
 ```javascript
-import HasManyQuery from 'ember-data-has-many-query';
+import { ModelMixin } from 'ember-data-has-many-query';
 
-export default DS.Model.extend(HasManyQuery.ModelMixin, {
+export default DS.Model.extend(ModelMixin, {
 });
 ```
 
@@ -43,7 +48,7 @@ post.query('comments', { page: 1 });
 
 ## Sticky `belongs-to`
 
-Ember Data 2.3.x and below: each has-many query calls `reload` on the relationship's `DS.ManyArray`. This means that all previously
+Has-many query calls `reload` on the relationship's `DS.ManyArray`. This means that all previously
 queried records are cleared from the array. If you are caching the records from each query separately
 (for example, in a separate array for an infinite scroll implementation), the inverse `belongs-to`
 relationship is also cleared on those cached records.
