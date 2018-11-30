@@ -14,7 +14,7 @@ This addon provides a way to query has-many and belongs-to relationships. Curren
 
 ## Versioning
 
-This addon is targeted at Ember & Ember Data v3.4 LTS
+This addon is targeted at Ember & Ember Data v3.0
 
 ## Installation
 
